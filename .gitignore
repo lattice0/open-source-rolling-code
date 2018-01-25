@@ -1,0 +1,4 @@
+*.o
+tiny-AES-c/*.o
+test
+rolling

@@ -3,31 +3,28 @@ RM=rm -f
 CFLAGS=-std=c99
 LDFLAGS=
 
-SUBDIRS := $(wildcard */.)
+SOURCES  := $(wildcard *.c) $(wildcard tiny-AES-c/*.c)
+SOURCES  := $(filter-out tiny-AES-c/test.c tiny-AES-c/test.o,$(SOURCES))
+OBJECTS  := $(subst .c,.o, $(SOURCES))
 
-INCLUDES_=tiny-AES-c
-INCLUDES=$(addprefix -I,$(INCLUDES_))
+INCLUDES :=tiny-AES-c
+INCLUDES :=$(addprefix -I,$(INCLUDES))
 
-CINCLUDES=tiny-AES-c
+TARGET := rolling
 
-all: rolling $(SUBDIRS)
+print-%  : ; @echo $* = $($*)
 
-$(SUBDIRS):
-    @$(MAKE) -C $@
+all: $(TARGET)
 
-rolling:  $(CINCLUDES)/%.o %.o
-    @$(CC) $< $(LDFLAGS) -o $@
-    @echo "Linking complete!"
+$(TARGET): $(OBJECTS)
+	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJECTS)
 
-%.o : $(CINCLUDES)/%.c %.c
-    @$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
+
+tiny-AES-c/%.o: tiny-AES-c/%.c
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
 
 .PHONY: clean
 clean:
-    @$(rm) $(OBJECTS)
-    @echo "Cleanup complete!"
-
-.PHONY: remove
-remove: clean
-    @$(rm) $(BINDIR)/$(TARGET)
-    @echo "Executable removed!"
+	$(RM) $(OBJECTS)
