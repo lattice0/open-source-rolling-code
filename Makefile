@@ -3,12 +3,17 @@ RM=rm -f
 CFLAGS=-std=c99
 LDFLAGS=
 
+SUBDIRS := $(wildcard */.)
+
 INCLUDES_=tiny-AES-c
 INCLUDES=$(addprefix -I,$(INCLUDES_))
 
 CINCLUDES=tiny-AES-c
 
-all: rolling
+all: rolling $(SUBDIRS)
+
+$(SUBDIRS):
+    @$(MAKE) -C $@
 
 rolling:  $(CINCLUDES)/%.o %.o
     @$(CC) $< $(LDFLAGS) -o $@
